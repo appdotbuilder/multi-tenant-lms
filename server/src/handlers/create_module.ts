@@ -1,15 +1,23 @@
+import { db } from '../db';
+import { modulesTable } from '../db/schema';
 import { type CreateModuleInput, type Module } from '../schema';
 
-export async function createModule(input: CreateModuleInput): Promise<Module> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating a new module within a course and persisting it in the database.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    course_id: input.course_id,
-    title: input.title,
-    description: input.description,
-    order: input.order,
-    created_at: new Date(),
-    updated_at: new Date()
-  } as Module);
-}
+export const createModule = async (input: CreateModuleInput): Promise<Module> => {
+  try {
+    // Insert module record
+    const result = await db.insert(modulesTable)
+      .values({
+        course_id: input.course_id,
+        title: input.title,
+        description: input.description,
+        order: input.order
+      })
+      .returning()
+      .execute();
+
+    return result[0];
+  } catch (error) {
+    console.error('Module creation failed:', error);
+    throw error;
+  }
+};

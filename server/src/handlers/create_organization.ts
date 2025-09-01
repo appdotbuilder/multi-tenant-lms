@@ -1,13 +1,23 @@
+import { db } from '../db';
+import { organizationsTable } from '../db/schema';
 import { type CreateOrganizationInput, type Organization } from '../schema';
 
-export async function createOrganization(input: CreateOrganizationInput): Promise<Organization> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating a new organization and persisting it in the database.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    name: input.name,
-    description: input.description,
-    created_at: new Date(),
-    updated_at: new Date()
-  } as Organization);
-}
+export const createOrganization = async (input: CreateOrganizationInput): Promise<Organization> => {
+  try {
+    // Insert organization record
+    const result = await db.insert(organizationsTable)
+      .values({
+        name: input.name,
+        description: input.description
+      })
+      .returning()
+      .execute();
+
+    // Return the created organization
+    const organization = result[0];
+    return organization;
+  } catch (error) {
+    console.error('Organization creation failed:', error);
+    throw error;
+  }
+};

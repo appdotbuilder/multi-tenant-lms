@@ -1,14 +1,23 @@
+import { db } from '../db';
+import { lmsTable } from '../db/schema';
 import { type CreateLMSInput, type LMS } from '../schema';
 
-export async function createLMS(input: CreateLMSInput): Promise<LMS> {
-  // This is a placeholder declaration! Real code should be implemented here.
-  // The goal of this handler is creating a new LMS instance within an organization and persisting it in the database.
-  return Promise.resolve({
-    id: 0, // Placeholder ID
-    organization_id: input.organization_id,
-    name: input.name,
-    description: input.description,
-    created_at: new Date(),
-    updated_at: new Date()
-  } as LMS);
-}
+export const createLMS = async (input: CreateLMSInput): Promise<LMS> => {
+  try {
+    // Insert LMS record
+    const result = await db.insert(lmsTable)
+      .values({
+        organization_id: input.organization_id,
+        name: input.name,
+        description: input.description
+      })
+      .returning()
+      .execute();
+
+    const lms = result[0];
+    return lms;
+  } catch (error) {
+    console.error('LMS creation failed:', error);
+    throw error;
+  }
+};
